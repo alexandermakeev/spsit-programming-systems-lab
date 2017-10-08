@@ -1,0 +1,7 @@
+package com.example.rvs;
+
+public class ClientErrorException extends RuntimeException {
+    public ClientErrorException(String message) {
+        super(message);
+    }
+}
