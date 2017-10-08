@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
@@ -19,7 +18,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {ClientErrorException.class})
     protected ResponseEntity<Object> handleConflict(ClientErrorException ex, WebRequest request) {
-        return handleExceptionInternal(ex, ex.getLocalizedMessage(), new HttpHeaders(), BAD_REQUEST, request);
+        return handleExceptionInternal(ex, ex.getLocalizedMessage(), new HttpHeaders(), ex.getStatus(), request);
     }
 
     @ExceptionHandler(value = {Exception.class})

@@ -1,5 +1,6 @@
 package com.example.rvs;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -7,17 +8,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
+
+import static com.example.rvs.Util.toArray;
+import static com.example.rvs.Util.toList;
 
 @Service
 public class MatrixService {
@@ -36,14 +36,14 @@ public class MatrixService {
     @Transactional(readOnly = true)
     public Log getById(Long id) {
         Log log = em.find(Log.class, id);
-        if (log == null) throw new ClientErrorException("Log not found");
+        if (log == null) throw new ClientErrorException("Log not found", HttpStatus.NOT_FOUND);
         return log;
     }
 
     @Transactional(rollbackFor = Exception.class)
     public Log calc(List<List<Double>> aCells,
-                       List<List<Double>> bCells,
-                       HttpServletRequest request) {
+                    List<List<Double>> bCells,
+                    HttpServletRequest request) {
 
         Log log = new Log();
         log.setAddress(request.getRemoteAddr());
@@ -71,18 +71,6 @@ public class MatrixService {
         return log;
     }
 
-    private List<List<Double>> toList(double[][] arr) {
-        return Arrays.stream(arr)
-                .map(a -> DoubleStream.of(a).boxed().collect(Collectors.toList()))
-                .collect(Collectors.toList());
-    }
-
-    private double[][] toArray(List<List<Double>> list) {
-        return list.stream()
-                .map(l -> l.stream().mapToDouble(v -> v).toArray())
-                .toArray(double[][]::new);
-    }
-
     private double[][] multiplyMatrices(double[][] a, double[][] b) {
 
         int aRows = a.length;
@@ -95,7 +83,9 @@ public class MatrixService {
         int bCols = b[0].length;
 
         if (aRows != bCols)
-            throw new ClientErrorException(String.format("A rows: %d didn't match B cols: %d", aRows, bCols));
+            throw new ClientErrorException(
+                    String.format("A rows: %d didn't match B cols: %d", aRows, bCols),
+                    HttpStatus.BAD_REQUEST);
 
         //init
         double[][] res = new double[aRows][bCols];
