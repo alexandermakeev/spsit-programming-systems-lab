@@ -16,8 +16,8 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionControllerAdvice.class);
 
-    @ExceptionHandler(value = {ClientErrorException.class})
-    protected ResponseEntity<Object> handleConflict(ClientErrorException ex, WebRequest request) {
+    @ExceptionHandler(value = {RestException.class})
+    protected ResponseEntity<Object> handleConflict(RestException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getLocalizedMessage(), new HttpHeaders(), ex.getStatus(), request);
     }
 

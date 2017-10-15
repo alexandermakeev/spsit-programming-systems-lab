@@ -2,10 +2,10 @@ package com.example.rvs;
 
 import org.springframework.http.HttpStatus;
 
-public class ClientErrorException extends RuntimeException {
+public class RestException extends RuntimeException {
     private final HttpStatus status;
 
-    public ClientErrorException(String message, HttpStatus status) {
+    public RestException(String message, HttpStatus status) {
         super(message);
         this.status = status;
     }

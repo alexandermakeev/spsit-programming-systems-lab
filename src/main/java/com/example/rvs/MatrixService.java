@@ -36,7 +36,7 @@ public class MatrixService {
     @Transactional(readOnly = true)
     public Log getById(Long id) {
         Log log = em.find(Log.class, id);
-        if (log == null) throw new ClientErrorException("Log not found", HttpStatus.NOT_FOUND);
+        if (log == null) throw new RestException("Log not found", HttpStatus.NOT_FOUND);
         return log;
     }
 
@@ -46,7 +46,7 @@ public class MatrixService {
                     HttpServletRequest request) {
 
         Log log = new Log();
-        log.setAddress(request.getRemoteAddr());
+        log.setAddress(request.getHeader("X-Real-IP"));
 
         Matrix a = new Matrix();
         a.setCells(aCells);
@@ -75,15 +75,15 @@ public class MatrixService {
 
         int aRows = a.length;
         if (aRows < 1)
-            throw new IllegalArgumentException("Matrix A is empty");
+            throw new RestException("Matrix A is empty", HttpStatus.BAD_REQUEST);
         int bRows = b.length;
         if (bRows < 1)
-            throw new IllegalArgumentException("Matrix B is empty");
+            throw new RestException("Matrix B is empty", HttpStatus.BAD_REQUEST);
         int aCols = a[0].length;
         int bCols = b[0].length;
 
         if (aRows != bCols)
-            throw new ClientErrorException(
+            throw new RestException(
                     String.format("A rows: %d didn't match B cols: %d", aRows, bCols),
                     HttpStatus.BAD_REQUEST);
 
